@@ -1,0 +1,25 @@
+---
+- name: touch files for IanseoBox plugin functionality
+  file:
+    path: '/etc/wpa_supplicant/wpa_supplicant.conf'
+    state: 'touch'
+    mode: '0664'
+
+- name: set wifi country to '{{ ianseobox_wifi_country }}'
+  lineinfile:
+    path: '/etc/wpa_supplicant/wpa_supplicant.conf'
+    regexp: '^country='
+    line: 'country={{ ianseobox_wifi_country }}'
+  notify: restart network-manager
+
+- name: do not disable wifi, since wifi country is set
+  copy:
+    dest: '{{ item }}'
+    content: '0'
+    mode: '0644'
+  with_items:
+    - '/var/lib/systemd/rfkill/platform-3f300000.mmcnr:wlan'
+    - '/var/lib/systemd/rfkill/platform-fe300000.mmcnr:wlan'
+  notify: restart network-manager
+
+- meta: flush_handlers

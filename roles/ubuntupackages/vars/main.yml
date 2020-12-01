@@ -1,0 +1,7 @@
+---
+
+ianseobox_install_packages:
+  - network-manager
+  - net-tools
+  - dhcpcd5
+  - avahi-daemon

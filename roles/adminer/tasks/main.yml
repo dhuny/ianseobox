@@ -1,0 +1,8 @@
+---
+- name: install adminer latest release
+  get_url:
+    url: 'https://www.adminer.org/latest.php'
+    dest: '{{ ianseobox_ianseo_source_dir }}/adminer.php'
+    owner: 'www-data'
+    group: '{{ ianseobox_username }}'
+    mode: '0664'

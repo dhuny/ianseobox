@@ -1,0 +1,29 @@
+---
+- name: configure timely cron
+  cron:
+    name: '{{ item.name }}'
+    minute: '{{ item.minute }}'
+    job: '{{ item.job }}'
+  with_items:
+    - { name: 'Launch Ianseo tasks', minute: '*', job: 'nice -n 10 ionice -c2 /usr/bin/php {{ ianseobox_ianseo_source_dir }}/admin/cli/cron.php' }
+    - { name: 'Backup cache', minute: '*/20', job: 'rsync -a --delete /var/cache/ianseo/ /var/cache/ianseo-cache-backup/' }
+
+- name: configure special time cron
+  cron:
+    name: '{{ item.name }}'
+    special_time: '{{ item.special_time }}'
+    job: '{{ item.job }}'
+  with_items:
+    - { name: 'Restore cache', special_time: 'reboot', job: 'cp -Rpf /var/cache/ianseo-cache-backup/* /var/cache/ianseo/' }
+
+- name: configure incron
+  template:
+    src: 'var/spool/incron/incron.j2'
+    dest: '/var/spool/incron/root'
+    mode: '0644'
+  register: incron_configured
+
+- name: configure cron mailto variable to suppress warnings in log
+  cronvar:
+    name: MAILTO
+    value: '""'

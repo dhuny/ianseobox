@@ -1,0 +1,6 @@
+{{ ianseobox_ianseo_source_dir }}/admin/tool/ianseobox/.reboot-server	IN_CLOSE_WRITE	/sbin/shutdown -r now
+{{ ianseobox_ianseo_source_dir }}/admin/tool/ianseobox/.shutdown-server	IN_CLOSE_WRITE	/sbin/shutdown -h now
+{{ ianseobox_ianseo_source_dir }}/admin/tool/ianseobox/.set-server-datetime	IN_CLOSE_WRITE	/bin/bash {{ ianseobox_ianseo_source_dir }}/admin/tool/ianseobox/.set-server-datetime
+{{ ianseobox_ianseo_source_dir }}/admin/tool/ianseobox/.newpassword	IN_CLOSE_WRITE	/bin/bash {{ ianseobox_ianseo_source_dir }}/admin/tool/ianseobox/bin/changepassword.sh
+{{ ianseobox_ianseo_source_dir }}/admin/tool/ianseobox/.wifisettings	IN_CLOSE_WRITE	/bin/bash {{ ianseobox_ianseo_source_dir }}/admin/tool/ianseobox/bin/changewifisettings.sh
+{{ ianseobox_ianseo_source_dir }}/admin/tool/ianseobox/.resize-partition	IN_CLOSE_WRITE	/bin/bash {{ ianseobox_ianseo_source_dir }}/admin/tool/ianseobox/bin/resizepartition.sh

@@ -1,0 +1,55 @@
+---
+- name: playbook to provision most of the IanseoBox
+  hosts: all
+  vars:
+    ansible_user: 'root'
+  become: 'true'
+
+  vars_files:
+    - default.config.yml
+
+  pre_tasks:
+    - debug:
+        msg: 'Beginning of build: {{ lookup("pipe", "date +%Y-%m-%dT%H:%M:%S%z") }}'
+
+    - name: set fact with build start timestamp
+      set_fact:
+        build_start: '{{ lookup("pipe", "date +%s") }}'
+
+    - name: include customised variables
+      include_vars: '{{ item }}'
+      with_fileglob:
+        - config.yml
+
+  post_tasks:
+    - debug:
+        msg:
+          - 'End of build: {{ lookup("pipe", "date +%Y-%m-%dT%H:%M:%S%z") }}'
+          - 'Build duration: {{ lookup("pipe", "date +%s")|int - build_start|int }} s'
+
+  roles:
+    - rpisettings
+    - useraccount
+    - apt
+    - ubuntupackages
+    - { role: firmware, when: ianseobox_update_firmware | bool }
+    - { role: hostname, when: ianseobox_set_hostname | bool }
+    - { role: timezone, when: ianseobox_set_timezone | bool }
+    - { role: locales, when: ianseobox_set_locale | bool }
+    - wifi
+    - database
+    - packages
+    - packageconfig
+    - partitionresize
+    - accesspoint
+    - zeroconf
+    - webserver
+    - ipforwarding
+    - ianseouninstall
+    - ianseodatabase
+    - ianseoinstall
+    - cron
+    - adminer
+    - cert
+    - branding
+    - cleanup

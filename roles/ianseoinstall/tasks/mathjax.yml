@@ -1,0 +1,17 @@
+---
+
+- name: get MathJax library version '{{ ianseobox_mathjax_version }}' from git repository
+  git:
+    repo: 'git://github.com/mathjax/MathJax.git'
+    dest: '{{ ianseobox_ianseo_source_dir }}/lib/MathJax'
+    version: '{{ ianseobox_mathjax_version }}'
+    depth: 1
+
+- name: change MathJax library file permissions
+  file:
+    path: '{{ ianseobox_ianseo_source_dir }}/lib/MathJax'
+    state: 'directory'
+    owner: 'www-data'
+    group: '{{ ianseobox_username }}'
+    mode: 'ug+w,o-w'
+    recurse: 'yes'

@@ -1,0 +1,40 @@
+---
+
+- name: install rpi-update
+  apt:
+    pkg: 'rpi-update'
+    state: 'present'
+  register: rpi_update_installed
+  until: rpi_update_installed is succeeded
+
+- name: update firmware
+  command: 'rpi-update'
+  environment:
+    - SKIP_BACKUP: 1
+    - PRUNE_MODULES: 1
+  register: fw_result
+  changed_when: 'fw_result.rc == 0 and "Your firmware is already up to date" not in fw_result.stdout'
+
+- name: uninstall rpi-update
+  apt:
+    pkg: 'rpi-update'
+    state: 'absent'
+    autoclean: 'yes'
+    autoremove: 'yes'
+
+- name: reboot machine
+  shell: 'sleep 2 && shutdown -r now'
+  async: 1
+  poll: 0
+  ignore_errors: true
+  when: fw_result is changed
+
+- name: wait for machine to come back
+  wait_for:
+    host: '{{ ansible_host | default(inventory_hostname) }}'
+    port: 22
+    state: 'started'
+    delay: 10
+    timeout: 60
+  delegate_to: localhost
+  become: false

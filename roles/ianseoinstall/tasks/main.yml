@@ -1,0 +1,12 @@
+---
+- name: configure Ianseo site summary
+  import_tasks: summary.yml
+
+- name: get Ianseo and install it
+  import_tasks: coreinstall.yml
+
+#- name: get IanseoBox plugin and install it
+#  import_tasks: ianseoboxplugin.yml
+
+#- name: install MathJax library
+#  import_tasks: mathjax.yml

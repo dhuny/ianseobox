@@ -1,0 +1,8 @@
+IanseoBox image version {{ ianseobox_version }}, {{ ianseobox_release_date }}
+{% if ianseobox_build_type == 'development' %}
+Build time: {{ lookup("pipe", "date +%Y-%m-%dT%H:%M:%S%z") }}
+{% endif %}
+
+Ianseobox is made by Dhuny Riyad, riyad@dhuny.org
+Ianseobox is based on Martignoni's Moodlebox
+Generated using https://github.com/dhuny/ianseobox/

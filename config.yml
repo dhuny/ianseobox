@@ -1,0 +1,97 @@
+---
+# IanseoBox version and release date.
+ianseobox_version: '1.0.0'
+ianseobox_release_date: '2020-11-27'
+ianseobox_name: 'IanseoBox'
+
+# IanseoBox hostname (taken from inventory).
+ianseobox_hostname: '{{ inventory_hostname }}'
+
+# IanseoBox top level domain name.
+# URL of IanseoBox is {{ ianseobox_hostname }}.{{ ianseobox_tld }}.
+ianseobox_tld: 'home'
+
+# IanseoBox main credentials.
+ianseobox_username: 'ianseobox'
+ianseobox_password: 'Ianseobox4$'
+
+# IanseoBox Wi-Fi static IP address.
+ianseobox_ip_address: '10.0.0.1/24'
+
+# IanseoBox DHCP range.
+ianseobox_dhcp_range_begin: "{{ ianseobox_ip_address | ipaddr('address') | ipmath(9) }}"
+ianseobox_dhcp_range_end: "{{ ianseobox_ip_address | ipaddr('address') | ipmath(253) }}"
+
+# IanseoBox external public DNS servers IP addresses.
+ianseobox_external_dns_ip_address:
+  - '1.1.1.1'  # Cloudflare privacy-first DNS
+  - '1.0.0.1'  # Cloudflare privacy-first DNS
+  # - '84.200.69.80' # DNS.WATCH
+  # - '84.200.70.40' # DNS.WATCH
+  # - '64.6.64.6' # Verisign
+  # - '64.6.65.6' # Verisign
+
+# IanseoBox db credentials.
+ianseobox_db_username: '{{ ianseobox_username }}'
+ianseobox_db_password: '{{ ianseobox_password }}'
+
+# IanseoBox db root password.
+ianseobox_db_root_password: '{{ ianseobox_password }}'
+
+# IanseoBox Wi-Fi settings.
+ianseobox_wifi_password: '{{ ianseobox_hostname }}'
+ianseobox_wifi_ssid: '{{ ianseobox_name }}'
+ianseobox_wifi_channel: '11'
+ianseobox_wifi_country: 'MU'
+
+# IanseoBox localisation parameters.
+ianseobox_default_locale: 'en_GB.UTF-8'
+ianseobox_locales:
+  - 'en_GB.UTF-8'
+  - 'en_AU.UTF-8'
+  - 'fr_FR.UTF-8'
+  - 'de_DE.UTF-8'
+  - 'es_ES.UTF-8'
+  - 'it_IT.UTF-8'
+ianseobox_timezone: 'Indian/Mauritius'
+
+# Public key filename.
+ianseobox_public_key_file: 'id_rsa.pub'
+
+# IanseoBox release info filename.
+ianseobox_info_file: 'ianseobox-info'
+
+# IanseoBox logo filename.
+ianseobox_logo_file: 'ianseobox-logo.txt'
+
+# IanseoBox Ianseo default build settings.
+ianseobox_ianseo_branch: 'NO_GIT_AVAILABLE'
+ianseobox_ianseo_username: 'ianseobox'
+ianseobox_ianseo_password: '{{ ianseobox_password }}'
+ianseobox_ianseo_db: 'ianseo'
+ianseobox_ianseo_db_prefix: 'ian_'
+ianseobox_ianseo_lang: 'en'
+ianseobox_ianseo_name: '{{ ianseobox_name }}'
+ianseobox_ianseo_summary: |
+  <p><span lang='en' class='multilang'><a href='https://ianseobox.dhuny.org/' target='_blank'>IanseoBox</a>, a <a href='https://ianseo.net/' target='_blank'>Ianseo </a>application on <a href='https://www.raspberrypi.org/' target='_blank'>Raspberry Pi</a>.</span><span lang='fr' class='multilang'><a href='https://ianseobox.dhuny.org' target='_blank'>IanseoBox</a>, une plateforme  de <a href='https://ianseo.org/' target='_blank'>Ianseo </a> sur <a href='https://www.raspberrypi.org/' target='_blank'>Raspberry Pi</a>.</span><span lang='de' class='multilang'><a href='https://ianseobox.dhuny.org' target='_blank'>IanseoBox</a>, eine <a href='https://ianseo.org/' target='_blank'>Ianseo </a> Plattform auf <a href='https://www.raspberrypi.org/' target='_blank'>Raspberry Pi</a>.</span></p>
+  <p><span lang='en' class='multilang'>IanseoBox is made by <a href='https://www.dhuny.org'>Dhuny Riyad</a>.</span><span lang='fr' class='multilang'>IanseoBox est réalisée par <a href='https://www.dhuny.org'>Dhuny Riyad</a>.</span><span lang='de' class='multilang'>IanseoBox ist von <a href='https://www.dhuny.org'>Dhuny Riyad</a> hergestellt.</span></p>
+  <p><span lang='en' class='multilang'>Version {{ ianseobox_version }}, {{ ianseobox_release_date }}.</span><span lang='fr' class='multilang'>Version {{ ianseobox_version }}, {{ ianseobox_release_date }}.</span><span lang='de' class='multilang'>Version {{ ianseobox_version }}, {{ ianseobox_release_date }}.</span></p>
+ianseobox_ianseo_source_dir: '/var/www/ianseo'
+ianseobox_ianseo_data_dir: '/var/www/ianseodata'
+
+# IanseoBox default build options.
+ianseobox_update_firmware: 'false'
+ianseobox_set_hostname: 'true'
+ianseobox_set_timezone: 'true'
+ianseobox_set_locale: 'true'
+ianseobox_ianseobox_plugin_version: 'v2.8.0'
+ianseobox_mathjax_version: '2.7.9'
+
+ianseobox_build_type: 'release'
+
+# Raspberry default credentials.
+ianseobox_rpi_username: 'ubuntu'
+ianseobox_rpi_password: 'Ianseobox4$'
+
+# Raspberry default hostname.
+ianseobox_rpi_hostname: 'ubuntu'

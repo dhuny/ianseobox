@@ -1,0 +1,19 @@
+---
+- name: reduce memory split down to 16Mb, as we are on a headless system
+  lineinfile:
+    path: '/boot/firmware/usercfg.txt'
+    line: 'gpu_mem=16'
+#  notify:
+#   - reboot machine
+#    - wait for machine to come back
+
+- name: enable shutdown/startup hardware button
+  lineinfile:
+    path: '/boot/firmware/usercfg.txt'
+    line: 'dtoverlay=gpio-shutdown'
+    insertafter: '^# configuration files on the boot partition.'
+#  notify:
+#    - reboot machine
+#    - wait for machine to come back
+
+- meta: flush_handlers

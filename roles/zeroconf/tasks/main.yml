@@ -1,0 +1,10 @@
+---
+- name: configure zeroconf service
+  template:
+    src: 'etc/avahi/services/ianseobox.service.j2'
+    dest: '/etc/avahi/services/{{ ianseobox_hostname }}.service'
+    mode: '0644'
+  register: network_configured
+  notify: restart network-manager
+
+- meta: flush_handlers

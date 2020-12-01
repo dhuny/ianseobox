@@ -1,0 +1,47 @@
+---
+
+- name: configure MariaDB root password
+  debconf:
+    name: 'mariadb-server'
+    question: '{{ item }}'
+    vtype: 'password'
+    value: '{{ ianseobox_db_root_password }}'
+  with_items:
+    - 'mysql-server/root_password'
+    - 'mysql-server/root_password_again'
+  register: configure_mariadb_install
+
+- name: install MariaDB
+  apt:
+    pkg: 'mariadb-server'
+    state: 'present'
+  when: configure_mariadb_install is successful
+  register: install_mariadb
+  until: install_mariadb is succeeded
+
+- name: install python-mysqldb
+  apt:
+    pkg: 'python3-mysqldb'
+    state: 'present'
+  register: py_mysql_installed
+  until: py_mysql_installed is succeeded
+
+- name: add '{{ ianseobox_db_username }}' MariaDB user with all privileges
+  mysql_user:
+    name: '{{ ianseobox_db_username }}'
+    host: 'localhost'
+    password: '{{ ianseobox_db_password }}'
+    priv: '*.*:ALL,GRANT'
+    state: 'present'
+  no_log: 'true'
+
+- name: update MariaDB settings
+  copy:
+    src: 'etc/mysql/mariadb.conf.d/50-server.cnf'
+    dest: '/etc/mysql/mariadb.conf.d/50-server.cnf'
+    mode: '0644'
+
+- name: restart MariaDB database
+  systemd:
+    name: 'mariadb'
+    state: 'restarted'

@@ -1,0 +1,12 @@
+---
+
+- name: set timezone to '{{ ianseobox_timezone }}'
+  file:
+    src: '/usr/share/zoneinfo/{{ ianseobox_timezone }}'
+    path: '/etc/localtime'
+    state: 'link'
+  register: timezone_status
+
+- name: update tzdata
+  command: 'dpkg-reconfigure -f noninteractive tzdata'
+  when: timezone_status is changed

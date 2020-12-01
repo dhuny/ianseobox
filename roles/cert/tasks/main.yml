@@ -1,0 +1,11 @@
+---
+- name: copy root CA certificate
+  copy:
+    src: 'home/files/ianseoboxCA.crt'
+    dest: '/home/{{ ianseobox_username }}/files/ianseoboxCA.crt'
+    owner: '{{ ianseobox_username }}'
+    group: 'www-data'
+    mode: '0644'
+    
+# VERY IMPORTANT https://www.suse.com/support/kb/doc/?id=000018152 and sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/nginx/ssl/ianseobox.key -out /etc/nginx/ssl/ianseobox.crt
+# use of root user required to create PEM from key.

@@ -1,0 +1,52 @@
+---
+- name: get IanseoBox plugin version '{{ ianseobox_ianseobox_plugin_version }}' from git repository
+  git:
+    repo: 'https://github.com/ianseobox/ianseo-tool_ianseobox.git'
+    dest: '{{ ianseobox_ianseo_source_dir }}/admin/tool/ianseobox'
+    version: '{{ ianseobox_ianseobox_plugin_version }}'
+    depth: 1
+
+- name: touch files for IanseoBox plugin functionality
+  file:
+    path: '{{ ianseobox_ianseo_source_dir }}/admin/tool/ianseobox/{{ item }}'
+    state: 'touch'
+    mode: '0664'
+  with_items:
+    - '.reboot-server'
+    - '.shutdown-server'
+    - '.set-server-datetime'
+    - '.newpassword'
+    - '.wifisettings'
+    - '.resize-partition'
+
+- name: change IanseoBox plugin file permissions (1)
+  file:
+    path: '{{ ianseobox_ianseo_source_dir }}/admin/tool/ianseobox'
+    state: 'directory'
+    owner: 'www-data'
+    group: '{{ ianseobox_username }}'
+    mode: 'ug+w,o-w'
+    recurse: 'yes'
+
+- name: change IanseoBox plugin file permissions (2)
+  file:
+    path: '{{ ianseobox_ianseo_source_dir }}/admin/tool/ianseobox/bin'
+    state: 'directory'
+    mode: '0774'
+    recurse: 'yes'
+
+- name: create sudoers file for IanseoBox plugin usage
+  copy:
+    src: 'etc/sudoers.d/020_www-data-nopasswd'
+    dest: '/etc/sudoers.d/020_www-data-nopasswd'
+    mode: '0440'
+    validate: 'visudo -cf %s'
+
+- name: install IanseoBox plugin via CLI
+  command: '/usr/bin/php "{{ ianseobox_ianseo_source_dir }}/admin/cli/upgrade.php"
+    --allow-unstable
+    --non-interactive'
+  args:
+    chdir: '{{ ianseobox_ianseo_source_dir }}'
+  register: ianseobox_plugin_installed
+  changed_when: ianseobox_plugin_installed.rc == 0

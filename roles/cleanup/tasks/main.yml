@@ -1,0 +1,111 @@
+---
+
+- name: Add 10 seconds delay to hostapd service
+  lineinfile:
+    path: '/etc/systemd/system/multi-user.target.wants/hostapd.service'
+    line: 'ExecStartPre=/bin/sleep 10'
+    insertafter: '^\[Service\]'
+
+- name: remove packages used only during the build
+  apt:
+    pkg: '{{ packages }}'
+    state: 'absent'
+    purge: 'yes'
+  vars:
+    packages:
+      - 'python-mysqldb'
+      - 'rpi-update'
+
+#- name: clean Ianseo database log tables
+#  command: mysql -e 'TRUNCATE TABLE {{ ianseobox_ianseo_db }}.{{ item }}'
+#  with_items:
+#    - 'mdl_config_log'
+#    - 'mdl_logstore_standard_log'
+#    - 'mdl_task_log'
+#    - 'mdl_upgrade_log'
+#  when: ianseo_db_created is succeeded 
+
+- name: remove Installation folder of Ianseo
+  file:
+    path: '{{ ianseobox_ianseo_source_dir }}/Install/'
+    state: 'absent'
+
+- name: remove useless packages from cache and no longer required dependencies
+  apt:
+    autoremove: 'yes'
+    autoclean: 'yes'
+  register: useless_packages_removed
+  until: useless_packages_removed is succeeded
+
+- name: start hostapd server
+  systemd:
+    name: 'hostapd'
+    state: 'started'
+
+- name: stop DHCP server
+  systemd:
+    name: 'dnsmasq'
+    state: 'stopped'
+
+- name: cleanup DHCP leases
+  file:
+    path: '/var/lib/misc/dnsmasq.leases'
+    state: 'absent'
+
+- name: cleanup dirs and files
+  include_tasks: cleandirfile.yml
+  with_items:
+    - '{{ ianseobox_ianseo_data_dir }}/cache/'
+    - '{{ ianseobox_ianseo_data_dir }}/localcache/'
+    - '{{ ianseobox_ianseo_data_dir }}/temp/'
+    - '{{ ianseobox_ianseo_data_dir }}/trashdir/'
+    - '{{ ianseobox_ianseo_data_dir }}/sessions/'
+    - '/var/cache/ianseo/'
+    - '/var/cache/ianseo-cache-backup/'
+    - '/var/lib/apt/lists/'
+    - '/var/cache/debconf/'
+    - '/tmp/'
+    - '/var/tmp/'
+    - '/root/.bash_history'
+    - '/root/.mysql_history'
+    - '/root/.nano_history'
+
+- name: find log files to truncate
+  find:
+    paths: '/var/log'
+    recurse: 'yes'
+  register: log_files
+
+- name: empty log files
+  command: 'truncate --size 0 {{ item.path }}'
+  with_items:
+    - '{{ log_files.files }}'
+  register: log_files_emptied
+  changed_when: log_files_emptied.rc == 0
+  
+    
+- name: set web server directory to www-data
+  shell: 'sudo chown -R www-data:www-data /var/www/ianseo/'
+  
+
+- name: reboot machine
+  shell: 'sleep 2 && shutdown -r now'
+  async: 1
+  poll: 0
+  ignore_errors: true
+  when: log_files_emptied is changed
+
+- name: wait for machine to come back
+  wait_for:
+    host: '{{ ansible_host | default(inventory_hostname) }}'
+    port: 22
+    state: 'started'
+    delay: 10
+    timeout: 120
+  delegate_to: localhost
+  become: false
+
+- name: remove ssh public keys
+  file:
+    path: '/root/.ssh'
+    state: 'absent'

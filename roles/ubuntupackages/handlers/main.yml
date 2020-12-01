@@ -1,0 +1,7 @@
+---
+- name: restart dhcpd services
+  systemd:
+    name: '{{ item }}'
+    state: 'restarted'
+  with_items:
+    - 'dhcpd'

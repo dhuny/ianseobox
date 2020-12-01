@@ -1,0 +1,110 @@
+---
+
+- name: create Ianseo data and cache directories and set adequate permissions
+  file:
+    path: '{{ item }}'
+    state: 'directory'
+    owner: 'www-data'
+    group: '{{ ianseobox_username }}'
+    mode: 'ug+w,o-w'
+    recurse: 'yes'
+  with_items:
+    - '{{ ianseobox_ianseo_source_dir }}'
+    - '{{ ianseobox_ianseo_data_dir }}/repository'
+    - '{{ ianseobox_ianseo_data_dir }}/temp'
+    - '{{ ianseobox_ianseo_data_dir }}/backup'
+    - '/var/cache/ianseo'
+    - '/var/cache/ianseo-cache-backup'
+
+- name: set sticky bit for ianseodata directory
+  file:
+    path: '{{ ianseobox_ianseo_data_dir }}'
+    state: 'directory'
+    mode: 'g+s'
+    recurse: 'yes'
+
+- name: create file repository directory
+  file:
+    path: '/home/{{ ianseobox_username }}/files'
+    state: 'directory'
+    owner: '{{ ianseobox_username }}'
+    group: 'www-data'
+    mode: 'g+s'
+
+- name: link directories
+  file:
+    src: '{{ item.src }}'
+    path: '{{ item.path }}'
+    state: 'link'
+  with_items:
+    - { src: '/home/{{ ianseobox_username }}/files', path: '{{ ianseobox_ianseo_data_dir }}/repository/files' }
+    - { src: '/media/usb', path: '{{ ianseobox_ianseo_data_dir }}/repository/usb' }
+
+- name: configure temporary storage for Ianseo cache
+  mount:
+    path: '{{ item.name }}'
+    src: 'tmpfs'
+    fstype: 'tmpfs'
+    opts: 'size={{ item.size }},mode=775,uid=www-data,gid=www-data'
+    dump: '0'
+    passno: '0'
+    state: 'mounted'
+  with_items:
+    - { name: '/var/cache/ianseo', size: '64M' }
+    - { name: '{{ ianseobox_ianseo_data_dir }}/temp', size: '64M' }
+    - { name: '{{ ianseobox_ianseo_data_dir }}/sessions', size: '16M' }
+
+- name: Download the Last ZIP install available for 'Ianseo' from ianseo.net
+  unarchive:
+    src: 'https://www.ianseo.net/Release/Ianseo_20190701.zip'
+    dest: '{{ ianseobox_ianseo_source_dir }}'
+    remote_src: yes
+    
+- name: Execute SQL Script to create IanSEO Database.
+  shell: 'mysql -u {{ ianseobox_ianseo_username }} -p{{ ianseobox_ianseo_password }} {{ianseobox_ianseo_db}} < {{ ianseobox_ianseo_source_dir }}/Install/install.sql >> /tmp/AutoSQLScript.log'
+  register: sql_query_output
+  async: 600
+  poll: 0
+
+
+- name: Set WRITE USERNAME settings in ./common/config.inc.php
+  lineinfile:
+    path: '{{ ianseobox_ianseo_source_dir }}/Common/config.inc.php'
+    regexp: '^\$CFG->W_USER'
+    line: "$CFG->W_USER = '{{ ianseobox_ianseo_username }}';"
+    
+- name: Set WRITE PASSWORD Configuration settings in ./Common/config.inc.php
+  lineinfile:
+    path: '{{ ianseobox_ianseo_source_dir }}/Common/config.inc.php'
+    regexp: '^\$CFG->W_PASS'
+    line: "$CFG->W_PASS = '{{ ianseobox_password }}';"
+    
+- name: Set  READ USERNAME settings in ./common/config.inc.php
+  lineinfile:
+    path: '{{ ianseobox_ianseo_source_dir }}/Common/config.inc.php'
+    regexp: '^\$CFG->R_USER'
+    line: "$CFG->R_USER = '{{ ianseobox_ianseo_username }}';"
+    
+- name: Set READ PASSWORD Configuration settings in ./Common/config.inc.php
+  lineinfile:
+    path: '{{ ianseobox_ianseo_source_dir }}/Common/config.inc.php'
+    regexp: '^\$CFG->R_PASS'
+    line: "$CFG->R_PASS = '{{ ianseobox_password }}';"
+    
+    
+- name: Set DATABASE Configuration settings in ./Common/config.inc.php
+  lineinfile:
+    path: '{{ ianseobox_ianseo_source_dir }}/Common/config.inc.php'
+    regexp: '^\$CFG->DB_NAME ='
+    line: "$CFG->DB_NAME = '{{ ianseobox_ianseo_db }}';"
+
+#- name: Set ROOTDIR Configuration settings in ./Common/config.inc.php
+#  lineinfile:
+#    path: '{{ ianseobox_ianseo_source_dir }}/Common/config.inc.php'
+#    regexp: '^\$CFG->ROOT_DIR ='
+#    line: "$CFG->ROOT_DIR = '{{ ianseobox_ianseo_db }}';"  # should be /
+
+
+
+
+# https://github.com/HCPSS/ansible-role-ianseo/blob/master/tasks/install.yml

@@ -1,0 +1,61 @@
+---
+
+- name: disable systemd-resolved
+  systemd:
+    name: 'systemd-resolved'
+    state: 'stopped'
+    enabled: 'false'
+    masked: 'false'
+
+- name: configure dhcpcd with static IP address {{ ianseobox_ip_address | ipaddr('host') }}
+  blockinfile:
+    path: '/etc/dhcpcd.conf'
+    block: |
+      interface wlan0
+      static ip_address={{ ianseobox_ip_address | ipaddr('host') }}
+  notify: restart network-manager
+
+- name: start dhcpcd
+  systemd:
+    name: 'dhcpcd'
+    state: 'started'
+    enabled: 'true'
+
+- name: update access point configuration file
+  template:
+    src: 'etc/hostapd/hostapd.conf.j2'
+    dest: '/etc/hostapd/hostapd.conf'
+    mode: '0664'
+  notify: restart network-manager
+
+- name: update access point settings
+  lineinfile:
+    path: '/etc/default/hostapd'
+    regexp: '^#?DAEMON_CONF'
+    line: 'DAEMON_CONF="/etc/hostapd/hostapd.conf"'
+  notify: restart network-manager
+
+- name: unmask, enable and start hostapd
+  systemd:
+    name: 'hostapd'
+    state: 'started'
+    enabled: 'yes'
+    masked: 'no'
+
+- name: update dnsmasq configuration
+  template:
+    src: 'etc/dnsmasq.conf.j2'
+    dest: '/etc/dnsmasq.conf'
+    mode: '0664'
+  notify: restart network-manager
+
+- name: update dnsmasq service file
+  blockinfile:
+    path: '/lib/systemd/system/dnsmasq.service'
+    insertbefore: '^\[Install\]\s*$'
+    block: |
+      RestartSec=5
+      Restart=on-failure
+  notify: restart network-manager
+
+- meta: flush_handlers

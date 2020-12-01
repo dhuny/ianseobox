@@ -1,0 +1,16 @@
+---
+
+- name: change hostname to '{{ ianseobox_hostname }}'
+  hostname:
+    name: '{{ ianseobox_hostname }}'
+  notify: restart network-manager
+
+- name: change /etc/hosts
+  template:
+    src: 'etc/hosts.j2'
+    dest: '/etc/hosts'
+    mode: '0644'
+  when: ansible_hostname == ianseobox_hostname
+  notify: restart network-manager
+
+- meta: flush_handlers

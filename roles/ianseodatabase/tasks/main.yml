@@ -1,0 +1,6 @@
+---
+- name: create database '{{ ianseobox_ianseo_db }}' for Ianseo
+  mysql_db:
+    name: '{{ ianseobox_ianseo_db }}'
+    state: 'present'
+  register: ianseo_db_created

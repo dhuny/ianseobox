@@ -1,0 +1,6 @@
+---
+
+- name: restart network-manager
+  systemd:
+    name: 'network-manager'
+    state: 'restarted'

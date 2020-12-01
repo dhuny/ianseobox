@@ -1,0 +1,25 @@
+---
+- name: playbook to get SSH public key into root account
+  hosts: all
+
+  vars_files:
+    - default.config.yml
+
+  pre_tasks:
+    - name: include customised variables
+      include_vars: '{{ item }}'
+      with_fileglob:
+        - config.yml
+
+  tasks:
+    - name: install SSH public key to root user
+      become: 'true'
+      authorized_key:
+        user: root
+        key: '{{ ssh_pubkey }}'
+      when:
+        ssh_pubkey is defined
+
+  vars:
+    ansible_user: '{{ ianseobox_username }}'
+    ssh_pubkey: "{{ lookup('file', 'keys/' + ianseobox_public_key_file) }}"
