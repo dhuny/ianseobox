@@ -33,10 +33,10 @@ To build a IanseoBox from scratch with this script, you need a Raspberry Pi 3B, 
 		
 1. [Install Ansible](https://docs.ansible.com/intro_installation.html) on your computer.
 1. [Install `sshpass`](https://gist.github.com/arunoda/7790979) to enable passing SSH password to the Raspberry Pi. On macOS, use e.g. `brew tap esolitos/ipa; brew install sshpass`.
-1. [Clone this repository][git] to your local drive. A quick way is:
-	
+
 	sudo apt install sshpass ansible unzip -y
 	
+1. [Clone this repository][git] to your local drive. 
 1. A server restart may be required for apt update & upgrade to remove locks on tmp files. Perform 
 	
 	sudo apt update && sudo apt upgrade -y
